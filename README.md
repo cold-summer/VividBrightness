@@ -23,6 +23,19 @@ VividBrightness is a native macOS menu bar app that increases the physical light
 
 Standard SDR displays are detected but are not modified.
 
+## Download and Install
+
+Download the Apple Silicon `.dmg` from the [latest GitHub Release](https://github.com/cold-summer/vividBrightness/releases/latest), open it, and drag `VividBrightness.app` to Applications.
+
+The current binary is ad-hoc signed and is not Apple-notarized. After copying the app, run this once in Terminal:
+
+```bash
+xattr -dr com.apple.quarantine /Applications/VividBrightness.app
+open /Applications/VividBrightness.app
+```
+
+The `.zip` release asset is also available as a fallback. Verify either download with its accompanying `.sha256` file using `shasum -a 256 -c <filename>.sha256`.
+
 ## Build
 
 ```bash

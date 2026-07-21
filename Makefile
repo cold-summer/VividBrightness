@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 
-.PHONY: build check diagnose test test-edr run
+.PHONY: build check diagnose dmg test test-edr run
 
 build:
 	./scripts/build-app.sh
@@ -10,6 +10,9 @@ check:
 
 diagnose: check
 	.build/native/edr-probe
+
+dmg: build
+	./scripts/package-dmg.sh
 
 test: check
 
