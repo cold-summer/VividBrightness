@@ -1,51 +1,84 @@
-# VividBrightness
+<p align="center">
+  <img src="docs/assets/social-preview.png" alt="VividBrightness - macOS XDR 亮度增强工具" width="100%">
+</p>
 
-[English](README.md)
+<h1 align="center">VividBrightness</h1>
 
-VividBrightness 是一个原生 macOS 菜单栏工具，通过 macOS 扩展动态范围合成管线提高兼容 XDR/EDR 显示器的实际光输出。它使用 16-bit 浮点 Metal 覆盖层，不修改显示器 Gamma 曲线。
+<p align="center"><strong>开源的 macOS XDR/EDR 屏幕亮度增强工具。</strong></p>
 
-## 功能
+<p align="center">
+  <a href="https://github.com/cold-summer/VividBrightness/releases/latest"><img alt="最新版本" src="https://img.shields.io/github/v/release/cold-summer/VividBrightness?sort=semver"></a>
+  <a href="https://github.com/cold-summer/VividBrightness/actions/workflows/ci.yml"><img alt="CI 状态" src="https://github.com/cold-summer/VividBrightness/actions/workflows/ci.yml/badge.svg"></a>
+  <img alt="支持 macOS 13 或更高版本" src="https://img.shields.io/badge/macOS-13%2B-111111?logo=apple">
+  <a href="LICENSE"><img alt="MIT License" src="https://img.shields.io/badge/license-MIT-2f855a"></a>
+</p>
 
-- 1.0x 到 2.0x 连续亮度增强
-- +25%、+50%、+75% 和 +100% 四档预设
-- 自动识别兼容的 XDR/EDR 显示器
-- 使用 `Command + Shift + B` 全局快捷键逐级增加亮度
-- 系统唤醒后自动恢复已启用的增强
-- 关闭功能或退出 App 时立即移除覆盖层
-- 仅驻留菜单栏，不显示 Dock 图标
+<p align="center">
+  <a href="https://github.com/cold-summer/VividBrightness/releases/latest"><strong>下载最新版 DMG</strong></a>
+  ·
+  <a href="README.md">English</a>
+</p>
 
-## 环境要求
+VividBrightness 是一个原生 macOS 菜单栏 App，用于提升兼容 XDR/EDR 屏幕的实际光输出。它通过 Apple 扩展动态范围合成管线和 16-bit 浮点 Metal 覆盖层，为 MacBook Pro Liquid Retina XDR 及其他受支持显示器提供最高 2.0x 的亮度增强，不修改显示器 Gamma 曲线。
 
-- macOS 13.0 或更高版本
-- Xcode Command Line Tools
-- 支持 Metal 的 Mac
-- Liquid Retina XDR、Pro Display XDR，或其他向 macOS 提供 EDR 余量的显示器
+<p align="center">
+  <img src="docs/assets/app-window.png" alt="VividBrightness 菜单栏 XDR 亮度控制与预设档位" width="360">
+</p>
 
-普通 SDR 显示器可以被识别，但不会被修改。
+## 为什么选择 VividBrightness？
+
+- **真实 XDR/EDR 光输出：**使用显示器亮度余量，而不是通过修改 Gamma 让画面看起来更亮。
+- **精确控制：**支持 1.0x 到 2.0x 连续调节，以及 +25%、+50%、+75% 和 +100% 预设。
+- **原生轻量：**基于 AppKit 和 Metal，仅驻留菜单栏，不包含分析、遥测和网络请求。
+- **自动识别显示器：**只对向 macOS 提供 EDR 余量的屏幕生效。
+- **可靠的状态管理：**系统唤醒后自动恢复，关闭功能或退出 App 时立即移除覆盖层。
+
+## 兼容性
+
+| 要求 | 支持情况 |
+| --- | --- |
+| macOS | macOS 13.0 或更高版本 |
+| Release 二进制 | Apple Silicon (`arm64`) |
+| 内置显示器 | 配备 Liquid Retina XDR 的 MacBook Pro |
+| 外接显示器 | Pro Display XDR，以及向 macOS 提供 EDR 余量的显示器 |
+| 普通 SDR 显示器 | 可以识别，但不会修改 |
+
+需要支持 Metal 的 Mac。实际可用亮度由 macOS 和显示器共同决定，App 无法让不支持 EDR 的硬件获得额外亮度余量。
 
 ## 下载与安装
 
-从 [GitHub 最新 Release](https://github.com/cold-summer/vividBrightness/releases/latest) 下载 Apple Silicon 版 `.dmg`，打开后将 `VividBrightness.app` 拖入 Applications 文件夹。
-
-当前二进制使用临时签名，未经 Apple 公证。复制 App 后，在“终端”执行一次：
+1. 从 [GitHub 最新 Release](https://github.com/cold-summer/VividBrightness/releases/latest) 下载 Apple Silicon 版 `.dmg`。
+2. 打开 DMG，将 `VividBrightness.app` 拖入 Applications 文件夹。
+3. 当前二进制使用临时签名，未经 Apple 公证，因此需要在“终端”执行一次：
 
 ```bash
 xattr -dr com.apple.quarantine /Applications/VividBrightness.app
 open /Applications/VividBrightness.app
 ```
 
-Release 中同时保留 `.zip` 作为备用下载。可以使用随附的 `.sha256` 文件运行 `shasum -a 256 -c <文件名>.sha256` 校验下载内容。
-
-## 构建
+Release 中同时提供 ZIP 备用版本和 SHA-256 校验文件。校验下载内容：
 
 ```bash
+shasum -a 256 -c VividBrightness-v1.0.0-macOS-arm64.dmg.sha256
+```
+
+## 实现原理
+
+VividBrightness 使用 `RGBA16Float` 和 extended-linear Display P3 创建支持 EDR 的 Metal 表面，再通过可穿透点击的全屏窗口进行乘法合成，使超过 SDR 白点的像素使用由 macOS 管理的 XDR 亮度余量。
+
+这是 XDR/EDR 亮度增强，不是对比度滤镜或软件 Gamma 调整。渲染管线、生命周期和系统限制参见[架构说明](docs/ARCHITECTURE.md)。
+
+## 从源码构建
+
+安装 Xcode Command Line Tools 后执行：
+
+```bash
+git clone https://github.com/cold-summer/VividBrightness.git
 cd VividBrightness
 make check
 make build
 open .build/VividBrightness.app
 ```
-
-`make check` 可以在 GitHub 托管的 macOS Runner 上运行。它会检查 Shell 脚本和属性列表、构建并临时签名 App，以及编译 EDR 诊断工具。
 
 无需修改仓库文件即可覆盖构建信息：
 
@@ -65,36 +98,21 @@ make build
 make test-edr
 ```
 
-测试会创建与正式 App 相同的 Metal 覆盖层，确认渲染帧持续输出，并要求 macOS 报告大于 `1.05` 的 EDR 余量。
-
-如需在不开启覆盖层的情况下查看当前和理论 EDR 数值：
+如需在不开启覆盖层的情况下查看当前和理论 EDR 余量：
 
 ```bash
 make diagnose
 ```
 
-## 实现原理
-
-VividBrightness 使用 `RGBA16Float` 和 extended-linear Display P3 创建支持 EDR 的 Metal 表面，再通过可穿透点击的全屏窗口进行乘法合成，使超过 SDR 白点的像素使用由 macOS 管理的 XDR 亮度余量。
-
-详细设计与系统限制参见[架构说明](docs/ARCHITECTURE.md)。
-
 ## 限制与安全提示
 
 - 锁屏、电池供电或设备温度过高时，macOS 可能降低 EDR 余量。
-- 长时间高亮会增加功耗和屏幕温度。
-- 界面曾显示的 EDR 余量代表系统容量，不是用户选择的增强倍数。
-- 长时间使用建议选择 +25% 或 +50% 等较保守档位。
-- 某些 macOS 配置下，全局快捷键可能需要“输入监控”权限；菜单栏操作不依赖该权限。
-
-## 隐私
-
-VividBrightness 不发起网络请求，不包含分析或遥测功能。App 只会在 macOS 用户默认值中保存用户选择的增强档位。
+- 长时间高亮会增加功耗和屏幕温度；长期使用建议选择 +25% 或 +50%。
+- EDR 余量代表系统容量，不是用户选择的增强倍数。
+- 某些系统中，全局快捷键 `Command + Shift + B` 可能需要“输入监控”权限；菜单栏控制不依赖该权限。
 
 ## 参与贡献
 
 提交 Pull Request 前请阅读 [CONTRIBUTING.md](CONTRIBUTING.md)。安全问题请按照 [SECURITY.md](SECURITY.md) 私下报告，不要提交公开 Issue。
-
-## 许可证
 
 VividBrightness 使用 [MIT License](LICENSE) 开源。

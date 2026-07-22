@@ -10,6 +10,7 @@ All notable changes to VividBrightness are documented in this file. The project 
 - Replaced ambiguous EDR-headroom status text with the selected brightness boost.
 - Added reproducible DMG packaging with drag-to-Applications installation and bilingual first-run instructions.
 - Documented installation and Gatekeeper steps for ad-hoc signed release binaries.
+- Improved project discovery with searchable repository metadata, bilingual README landing pages, a real app screenshot, and a social preview image.
 
 ## [1.0.0] - 2026-07-21
 
